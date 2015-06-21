@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-    fmt.Println(ipinfo.MyInfo())
+	fmt.Println(ipinfo.MyInfo())
 	fmt.Println(ipinfo.ForeignInfo("8.8.8.8"))
 }
 ```
