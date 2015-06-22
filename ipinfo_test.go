@@ -2,16 +2,16 @@ package ipinfo
 
 import "testing"
 
-func TestGoogleIP(t *testing.T) {
-	ipinfo := ForeignInfo("8.8.8.8")
+func TestForeignIP(t *testing.T) {
+	ipinfo := ForeignIP("8.8.8.8")
 
 	if ipinfo.IP != "8.8.8.8" {
 		t.Error(ipinfo)
 	}
 }
 
-func TestMyRemoteIP(t *testing.T) {
-	ipinfo := MyInfo()
+func TestMyIP(t *testing.T) {
+	ipinfo := MyIP()
 
 	if ipinfo.IP == "8.8.8.8" {
 		t.Error(ipinfo)

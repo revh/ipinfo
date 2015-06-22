@@ -1,5 +1,5 @@
 # ipinfo
-A wrapper for http://ipinfo.io in Go
+A wrapper for http://ipinfo.io written in Go language
 
 ```go
 package main
@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	fmt.Println(ipinfo.MyInfo())
-	fmt.Println(ipinfo.ForeignInfo("8.8.8.8"))
+	fmt.Println(ipinfo.MyIP())
+	fmt.Println(ipinfo.ForeignIP("8.8.8.8"))
 }
 ```

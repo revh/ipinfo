@@ -16,13 +16,13 @@ type IPInfo struct {
 	Org      string
 }
 
-//MyInfo provides information about your public ip
-func MyInfo() *IPInfo {
-	return ForeignInfo("")
+//MyIP provides information about your public ip
+func MyIP() *IPInfo {
+	return ForeignIP("")
 }
 
-//ForeignInfo provides information about the passed ip
-func ForeignInfo(ip string) *IPInfo {
+//ForeignIP provides information about the passed ip
+func ForeignIP(ip string) *IPInfo {
 	if ip != "" {
 		ip += "/"
 	}
