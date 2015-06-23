@@ -35,7 +35,6 @@ func ForeignIP(ip string) (*IPInfo, error) {
 	}
 
 	response, err := http.Get(fmt.Sprintf("%s/%sjson", ipinfoURI, ip))
-
 	if err != nil {
 		return nil, err
 	}
