@@ -27,8 +27,8 @@ func MyIP() (*IPInfo, error) {
 	return ForeignIP("")
 }
 
-// ForeignIP provides information about the given IP address,
-// which should be in dotted-quad form.
+// ForeignIP provides information about the given IP address (IPv4 or IPv6)
+// if empty it behaves as MyIP()
 func ForeignIP(ip string) (*IPInfo, error) {
 	if ip != "" {
 		ip += "/"
