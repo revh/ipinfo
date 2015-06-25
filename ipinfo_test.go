@@ -2,6 +2,7 @@ package ipinfo
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -43,7 +44,7 @@ func TestForeignIP(t *testing.T) {
 	ipinfoURI = server.URL
 
 	testIP := "8.8.8.8"
-	info, err := ForeignIP(testIP)
+	info, err := ForeignIP(net.ParseIP(testIP))
 
 	if err != nil {
 		t.Errorf(`ForeignIP("%s") error %s`, testIP, err)

@@ -1,16 +1,17 @@
 // Package ipinfo provides info on IP address location
-// using the ipinfo.io service.
+// using the http://ipinfo.io service.
 package ipinfo
 
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 )
 
 var ipinfoURI = "http://ipinfo.io"
 
-// IPInfo wraps ipinfo.io response
+// IPInfo wraps json response
 type IPInfo struct {
 	IP       string `json:"ip"`
 	Hostname string `json:"hostname"`
@@ -24,17 +25,17 @@ type IPInfo struct {
 
 // MyIP provides information about the public IP address of the client.
 func MyIP() (*IPInfo, error) {
-	return ForeignIP("")
+	return getInfo(fmt.Sprintf("%s/json", ipinfoURI))
 }
 
 // ForeignIP provides information about the given IP address (IPv4 or IPv6)
-// if empty it behaves as MyIP()
-func ForeignIP(ip string) (*IPInfo, error) {
-	if ip != "" {
-		ip += "/"
-	}
+func ForeignIP(i net.IP) (*IPInfo, error) {
+	return getInfo(fmt.Sprintf("%s/%s/json", ipinfoURI, i.String()))
+}
 
-	response, err := http.Get(fmt.Sprintf("%s/%sjson", ipinfoURI, ip))
+// Undercover code that makes the real call to the webservice
+func getInfo(url string) (*IPInfo, error) {
+	response, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
