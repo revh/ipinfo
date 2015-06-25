@@ -18,7 +18,7 @@ func main() {
 	}
 	log.Println(myIP)
 
-	foreignIP, err := ipinfo.ForeignIP(net.ParseIP("8.8.8.8"))
+	foreignIP, err := ipinfo.ForeignIP("8.8.8.8")
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -5,7 +5,6 @@ package ipinfo
 import (
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/http"
 )
 
@@ -29,8 +28,8 @@ func MyIP() (*IPInfo, error) {
 }
 
 // ForeignIP provides information about the given IP address (IPv4 or IPv6)
-func ForeignIP(i net.IP) (*IPInfo, error) {
-	return getInfo(fmt.Sprintf("%s/%s/json", ipinfoURI, i.String()))
+func ForeignIP(ip string) (*IPInfo, error) {
+	return getInfo(fmt.Sprintf("%s/%s/json", ipinfoURI, ip))
 }
 
 // Undercover code that makes the real call to the webservice
