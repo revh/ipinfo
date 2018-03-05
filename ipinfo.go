@@ -24,7 +24,7 @@ type IPInfo struct {
 	Postal   string `json:"postal"`
 }
 
-type ipinfoOptions struct {
+type Options struct {
 	Timeout  time.Duration
 	SourceIp net.IP
 }
@@ -40,12 +40,12 @@ func ForeignIP(ip string) (*IPInfo, error) {
 }
 
 // MyIP provides information about the public IP address of the client.
-func MyIPWithOptions(opt ipinfoOptions) (*IPInfo, error) {
+func MyIPWithOptions(opt Options) (*IPInfo, error) {
 	return getInfo(fmt.Sprintf("%s/json", ipinfoURI), &opt)
 }
 
 // Undercover code that makes the real call to the webservice
-func getInfo(url string, opt *ipinfoOptions) (*IPInfo, error) {
+func getInfo(url string, opt *Options) (*IPInfo, error) {
 	var localAddr net.IP
 	if opt != nil {
 		localAddr = opt.SourceIp
