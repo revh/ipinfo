@@ -5,7 +5,9 @@ package ipinfo
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
+	"time"
 )
 
 var ipinfoURI = "http://ipinfo.io"
@@ -22,19 +24,44 @@ type IPInfo struct {
 	Postal   string `json:"postal"`
 }
 
+type ipinfoOptions struct {
+	Timeout  time.Duration
+	SourceIp net.IP
+}
+
 // MyIP provides information about the public IP address of the client.
 func MyIP() (*IPInfo, error) {
-	return getInfo(fmt.Sprintf("%s/json", ipinfoURI))
+	return getInfo(fmt.Sprintf("%s/json", ipinfoURI), nil)
 }
 
 // ForeignIP provides information about the given IP address (IPv4 or IPv6)
 func ForeignIP(ip string) (*IPInfo, error) {
-	return getInfo(fmt.Sprintf("%s/%s/json", ipinfoURI, ip))
+	return getInfo(fmt.Sprintf("%s/%s/json", ipinfoURI, ip), nil)
+}
+
+// MyIP provides information about the public IP address of the client.
+func MyIPWithOptions(opt ipinfoOptions) (*IPInfo, error) {
+	return getInfo(fmt.Sprintf("%s/json", ipinfoURI), &opt)
 }
 
 // Undercover code that makes the real call to the webservice
-func getInfo(url string) (*IPInfo, error) {
-	response, err := http.Get(url)
+func getInfo(url string, opt *ipinfoOptions) (*IPInfo, error) {
+	var localAddr net.IP
+	if opt != nil {
+		localAddr = opt.SourceIp
+	}
+	localTCPAddr := net.TCPAddr{IP: localAddr}
+	fmt.Printf("Connecting to %s using intf %s source %v\n",
+		url, localTCPAddr)
+	d := net.Dialer{LocalAddr: &localTCPAddr}
+	if opt != nil && opt.Timeout != 0 {
+		d.Timeout = opt.Timeout
+	}
+	transport := &http.Transport{
+		Dial: d.Dial,
+	}
+	client := &http.Client{Transport: transport}
+	response, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
