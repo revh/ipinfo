@@ -51,7 +51,6 @@ func getInfo(url string, opt *Options) (*IPInfo, error) {
 		localAddr = opt.SourceIp
 	}
 	localTCPAddr := net.TCPAddr{IP: localAddr}
-	// XXX fmt.Printf("Connecting to %s using source %v\n", url, localTCPAddr)
 	d := net.Dialer{LocalAddr: &localTCPAddr}
 	if opt != nil && opt.Timeout != 0 {
 		d.Timeout = opt.Timeout
