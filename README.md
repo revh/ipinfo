@@ -1,3 +1,5 @@
+Looking for new repo maintainer! please open an issue to condidate!
+
 # ipinfo
 A wrapper for http://ipinfo.io written in Go language
 
