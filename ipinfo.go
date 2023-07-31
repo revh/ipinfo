@@ -4,11 +4,14 @@ package ipinfo
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net"
 	"net/http"
+	"time"
 )
 
-var ipinfoURI = "http://ipinfo.io"
+var ipinfoURI = "https://ipinfo.io"
 
 // IPInfo wraps json response
 type IPInfo struct {
@@ -22,29 +25,66 @@ type IPInfo struct {
 	Postal   string `json:"postal"`
 }
 
+type Options struct {
+	Timeout  time.Duration
+	SourceIp net.IP
+	Token    string
+}
+
 // MyIP provides information about the public IP address of the client.
 func MyIP() (*IPInfo, error) {
-	return getInfo(fmt.Sprintf("%s/json", ipinfoURI))
+	return getInfo(fmt.Sprintf("%s/json", ipinfoURI), nil)
 }
 
 // ForeignIP provides information about the given IP address (IPv4 or IPv6)
 func ForeignIP(ip string) (*IPInfo, error) {
-	return getInfo(fmt.Sprintf("%s/%s/json", ipinfoURI, ip))
+	return getInfo(fmt.Sprintf("%s/%s/json", ipinfoURI, ip), nil)
+}
+
+// MyIP provides information about the public IP address of the client.
+func MyIPWithOptions(opt Options) (*IPInfo, error) {
+	return getInfo(fmt.Sprintf("%s/json", ipinfoURI), &opt)
 }
 
 // Undercover code that makes the real call to the webservice
-func getInfo(url string) (*IPInfo, error) {
-	response, err := http.Get(url)
+func getInfo(url string, opt *Options) (*IPInfo, error) {
+	var localAddr net.IP
+	if opt != nil {
+		localAddr = opt.SourceIp
+		if opt.Token != "" {
+			url += fmt.Sprintf("/?token=%s", opt.Token)
+		}
+	}
+	localTCPAddr := net.TCPAddr{IP: localAddr}
+	d := net.Dialer{LocalAddr: &localTCPAddr}
+	if opt != nil && opt.Timeout != 0 {
+		d.Timeout = opt.Timeout
+	}
+	transport := &http.Transport{
+		Dial:  d.Dial,
+		Proxy: http.ProxyFromEnvironment,
+	}
+	client := &http.Client{Transport: transport}
+	if opt != nil && opt.Timeout != 0 {
+		client.Timeout = opt.Timeout
+	}
+	response, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer response.Body.Close()
-
-	var ipinfo IPInfo
-	err = json.NewDecoder(response.Body).Decode(&ipinfo)
-	if err != nil {
-		return nil, err
+	switch response.StatusCode {
+	case http.StatusOK:
+		var ipinfo IPInfo
+		err = json.NewDecoder(response.Body).Decode(&ipinfo)
+		if err != nil {
+			return nil, err
+		}
+		return &ipinfo, nil
+	default:
+		errStr := fmt.Sprintf("%s got statuscode %d %s body <%v>",
+			url, response.StatusCode,
+			http.StatusText(response.StatusCode), response.Body)
+		return nil, errors.New(errStr)
 	}
-
-	return &ipinfo, nil
 }
